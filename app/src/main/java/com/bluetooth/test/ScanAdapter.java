@@ -54,7 +54,7 @@ public class ScanAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) view.getTag();
         }
         ScanData data = mlist_macs.get(i);
-        viewHolder.textView.setText("imei:"+data.getImei());
+        viewHolder.textView.setText("name:"+data.getImei());
         viewHolder.time.setText("mac:"+data.getMac());
         viewHolder.rssi.setText("rssi:"+data.getSsid());
         return view;

@@ -85,7 +85,7 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
 
     private ScanAdapter scanAdapter;
 
-    private Button mStartScan,mLvL,mFind,mScanComm,mShutdown,mStartTime;
+    private Button mStartScan,mLvL,mFind,mScanComm,mShutdown,mStartTime,mOpen;
 
     private Button mStopScan;
 
@@ -174,6 +174,7 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
         mListView.setOnItemClickListener(this);
         mListView.setAdapter(scanAdapter);
         mCount = findViewById(R.id.cout);
+        mOpen = findViewById(R.id.open);
 
         mStartScan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -204,8 +205,8 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
         mLvL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                byte[] temp = {0x74,0x77,0x01,0x01};
-                handlerMsg(bytesToHexString(temp));
+                //byte[] temp = {0x74,0x77,0x01,0x01};
+                //handlerMsg(bytesToHexString(temp));
                 if(mBluetoothGatt==null){
                     Toast.makeText(BleConsolActivity.this,"请重新进行连接!!!",Toast.LENGTH_SHORT).show();
                     return;
@@ -215,13 +216,13 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
                     return;
                 }
 //                byte[] bTemp = hexStringToBytes("74770101");
+                byte[] lvl = {0x02, 0x01, 0x01, 0x01, token[0], token[1], token[2], token[3], 0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 
-
-                sendData(" 发送获取电量指令：",temp);
+                sendData(" 发送获取电量指令：",lvl);
             }
         });
 
-        mFind.setOnClickListener(new View.OnClickListener() {
+        mOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(mBluetoothGatt==null){
@@ -232,58 +233,74 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
                     Toast.makeText(BleConsolActivity.this," write Characteristic获取失败!!!",Toast.LENGTH_SHORT).show();
                     return;
                 }
-//                byte[] bTemp = hexStringToBytes("72770201");
-                byte[] temp = {0x74,0x77,0x02,0x01};
-                sendData(" 发送一键寻牛指令：",temp);
-            }
-        });
-        mScanComm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(mBluetoothGatt==null){
-                    Toast.makeText(BleConsolActivity.this,"请重新进行连接!!!",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(writeCharacteristic == null){
-                    Toast.makeText(BleConsolActivity.this," write Characteristic获取失败!!!",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                byte[] temp = {0x74,0x77,0x03,0x01};
-                sendData(" 发送立即扫描指令：",temp);
+                byte[] downLock = {0x05, 0x01, 0x06, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00};
+                sendData(" 发送开锁指令：",downLock);
             }
         });
 
-        mShutdown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(mBluetoothGatt==null){
-                    Toast.makeText(BleConsolActivity.this,"请重新进行连接!!!",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(writeCharacteristic == null){
-                    Toast.makeText(BleConsolActivity.this," write Characteristic获取失败!!!",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                byte[] temp = {0x74,0x77,0x04,0x01};
-                sendData(" 发送关机指令：",temp);
-            }
-        });
-
-        mStartTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(mBluetoothGatt==null){
-                    Toast.makeText(BleConsolActivity.this,"请重新进行连接!!!",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(writeCharacteristic == null){
-                    Toast.makeText(BleConsolActivity.this," write Characteristic获取失败!!!",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                byte[] temp = {0x74,77,05,01};
-                sendData(" 发送开机机指令：",temp);
-            }
-        });
+//        mFind.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(mBluetoothGatt==null){
+//                    Toast.makeText(BleConsolActivity.this,"请重新进行连接!!!",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                if(writeCharacteristic == null){
+//                    Toast.makeText(BleConsolActivity.this," write Characteristic获取失败!!!",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+////                byte[] bTemp = hexStringToBytes("72770201");
+//                byte[] temp = {0x74,0x77,0x02,0x01};
+//                sendData(" 发送一键寻牛指令：",temp);
+//            }
+//        });
+//        mScanComm.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(mBluetoothGatt==null){
+//                    Toast.makeText(BleConsolActivity.this,"请重新进行连接!!!",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                if(writeCharacteristic == null){
+//                    Toast.makeText(BleConsolActivity.this," write Characteristic获取失败!!!",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                byte[] temp = {0x74,0x77,0x03,0x01};
+//                sendData(" 发送立即扫描指令：",temp);
+//            }
+//        });
+//
+//        mShutdown.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(mBluetoothGatt==null){
+//                    Toast.makeText(BleConsolActivity.this,"请重新进行连接!!!",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                if(writeCharacteristic == null){
+//                    Toast.makeText(BleConsolActivity.this," write Characteristic获取失败!!!",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                byte[] temp = {0x74,0x77,0x04,0x01};
+//                sendData(" 发送关机指令：",temp);
+//            }
+//        });
+//
+//        mStartTime.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(mBluetoothGatt==null){
+//                    Toast.makeText(BleConsolActivity.this,"请重新进行连接!!!",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                if(writeCharacteristic == null){
+//                    Toast.makeText(BleConsolActivity.this," write Characteristic获取失败!!!",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                byte[] temp = {0x74,77,05,01};
+//                sendData(" 发送开机机指令：",temp);
+//            }
+//        });
     }
 
 
@@ -320,23 +337,23 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
     @Override
     public void onLeScan(BluetoothDevice bluetoothDevice, int rssi, byte[] scanRecord) {
 //        byte[] temp = new byte[]{19,19,19,-1,0,0,125,126,-104,89,4,40,-88,-76,0,0,0,0,0,0,0,0,3,3,1,0,-96,3,25,0,0};
-        String imei = spliteScanData(scanRecord);
-        if(TextUtils.isEmpty(imei)){
-            return;
-        }
+//        String imei = spliteScanData(scanRecord);
+//        if(TextUtils.isEmpty(imei)){
+//            return;
+//        }
         ScanData sd = new ScanData();
         sd.setDevice(bluetoothDevice);
-        sd.setImei(imei);
+        sd.setImei(bluetoothDevice.getName());
         sd.setMac(bluetoothDevice.getAddress());
         sd.setSsid(String.valueOf(rssi));
-        if(tempDatas.containsKey(imei)){
+        if(tempDatas.containsKey(bluetoothDevice.getAddress())){
             return;
         }
         value++;
         mCount.setText("扫描到设备数量:"+value);
         mControlLayout.setVisibility(View.VISIBLE);
         mControlLayout2.setVisibility(View.VISIBLE);
-        tempDatas.put(imei,imei);
+        tempDatas.put(bluetoothDevice.getAddress(),bluetoothDevice.getAddress());
         datas.add(sd);
         scanAdapter.addData(datas);
     }
@@ -409,14 +426,14 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
     /**
      * 发送数据
      * */
-    private void sendData(String tag,byte[] data ){
-        if (data != null && writeCharacteristic!=null) {
-            writeCharacteristic.setValue(data);
-            mBluetoothGatt.writeCharacteristic(writeCharacteristic);
-            String hexString = bytesToHexString(data);
-            handlerMsg(tag+hexString);
-        }
-    }
+//    private void sendData(String tag,byte[] data ){
+//        if (data != null && writeCharacteristic!=null) {
+//            writeCharacteristic.setValue(data);
+//            mBluetoothGatt.writeCharacteristic(writeCharacteristic);
+//            String hexString = bytesToHexString(data);
+//            handlerMsg(tag+hexString);
+//        }
+//    }
 
     StringBuffer sb = new StringBuffer();
 
@@ -448,60 +465,40 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
                                             BluetoothGattCharacteristic characteristic) {
             // 获取蓝牙ble设备返回给你的信息
             Log.e("TAG", "onCharacteristicChanged");
-
             byte[] values = characteristic.getValue();
-            StringBuffer sb = new StringBuffer();
-            for(byte b: values){
-                sb.append(b+",");
-            }
-            handlerMsg("收到蓝牙返回byte数据:"+sb.toString());
-            if(values.length>3){
-                if(((int) values[0] & 0xff) == 0x74  && ((int) values[1] & 0xff) == 0x78){
-                    if(((int) values[2] & 0xff) == 0x01){//电量返回
-                        StringBuffer stringBuffer= new StringBuffer();
-                        int v = values[3] & 0xFF;
-                        String hv = Integer.toHexString(v);
-                        if (hv.length() < 2) {
-                            stringBuffer.append(0);
-                        }else{
-                            stringBuffer.append(hv);
-                        }
-                        handlerMsg("获取电量成功:"+stringBuffer.toString());
-                    }else if(((int) values[2] & 0xff) == 0x02){//寻牛返回
-                        if(((int) values[3] & 0xff) == 0x00){
-                            handlerMsg("寻牛成功:");
-                        }else{
-                            handlerMsg("寻牛失败:");
-                        }
+            byte[] x = new byte[16];
+            System.arraycopy(values, 0, x, 0, 16);
+            byte mingwen[] = Decrypt(x, key);
 
-                    }else if(((int) values[2] & 0xff) == 0x03){//立即扫描
-                        if(((int) values[3] & 0xff) == 0x00){
-                            handlerMsg("扫描成功:");
-                        }else{
-                            handlerMsg("扫描失败:");
-                        }
+            String hexString = bytesToHexString(mingwen);
+            handlerMsg("蓝牙返回的数据:"+hexString);
 
-                    }else if(((int) values[2] & 0xff) == 0x04){//GSM立即关机
-                        if(((int) values[3] & 0xff) == 0x00){
-                            handlerMsg("关机成功:");
-                        }else{
-                            handlerMsg("关机失败:");
-                        }
-
-                    }else if(((int) values[2] & 0xff) == 0x05){//GSM立即开机
-                        if(((int) values[3] & 0xff) == 0x00){
-                            handlerMsg("开机成功:");
-                        }else{
-                            handlerMsg("开机失败:");
-                        }
-
+            if (mingwen != null && mingwen.length == 16) {
+                if (mingwen[0] == 0x06 && mingwen[1] == 0x02) {
+                    token[0] = mingwen[3];
+                    token[1] = mingwen[4];
+                    token[2] = mingwen[5];
+                    token[3] = mingwen[6];
+                } else if (mingwen[0] == 0x05 && mingwen[1] == 0x02) {
+                    if (mingwen[3] == 0x00) {   //Unlock success
+                        handlerMsg("开锁成功！");
+                    } else {//The lock failure
+                        handlerMsg("开锁失败！");
                     }
-
+                } else if (mingwen[0] == 0x05 && mingwen[1] == 0x08) {
+                    if (mingwen[3] == 0x00) { //You success
+                       handlerMsg("关锁成功");
+                    } else {  //You failed
+                        handlerMsg("关锁失败");
+                    }
+                }else if(mingwen[0] == 0x02 && mingwen[1] == 0x02){
+                    handlerMsg("获取量成功:"+mingwen[2]);
                 }
+
             }
-
-
         }
+
+
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status,
@@ -571,12 +568,12 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
             super.onDescriptorWrite(gatt, descriptor, status);
             Log.e("TAG","write"+status);
 
-            SendData(gettoken);
+            sendData("获取Token:",gettoken);
         }
     };
 
 
-    public void SendData(byte[] data) {
+    public void sendData(String str,byte[] data) {
         byte miwen[] = Encrypt(data, key);
         if (miwen != null) {
             writeCharacteristic.setValue(miwen);
@@ -584,7 +581,7 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
 
             String hexString = bytesToHexString(data);
 
-            handlerMsg("发送数据:"+hexString);
+            handlerMsg(str+hexString);
 
 
         }
