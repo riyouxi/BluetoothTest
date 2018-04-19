@@ -44,17 +44,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
 @SuppressLint("NewApi")
 public class BleConsolActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback,AdapterView.OnItemClickListener{
 
-    private UUID bltServerUUID = UUID.fromString("0000fe00-0000-1000-8000-00805f9b34fb");
-    private UUID readDataUUID = UUID.fromString("0000fe02-0000-1000-8000-00805f9b34fb");
-    private UUID writeDataUUID = UUID.fromString("0000fe01-0000-1000-8000-00805f9b34fb");
+    private UUID bltServerUUID = UUID.fromString("0000fee7-0000-1000-8000-00805f9b34fb");
+    private UUID readDataUUID = UUID.fromString("000036f6-0000-1000-8000-00805f9b34fb");
+    private UUID writeDataUUID = UUID.fromString("000036f5-0000-1000-8000-00805f9b34fb");
     private UUID writeDataNotifyUUID = UUID.fromString("0000feff-0000-1000-8000-00805f9b34fb");
 
     private BluetoothGattCharacteristic writeCharacteristic;
     private BluetoothGattCharacteristic readCharacteristic;
     private BluetoothGattCharacteristic writeNotifyCharacteristic;
+
+    byte[] token = new byte[4];
+
+    byte[] gettoken = {0x06, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    byte[] key = {32, 87, 47, 82, 54, 75, 63, 71, 48, 80, 65, 88, 17, 99, 45, 43};
 
     //是否需要检测权限
     public static boolean isRequireCheck = true;
@@ -332,6 +341,37 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
         scanAdapter.addData(datas);
     }
 
+    // encryption
+    public byte[] Encrypt(byte[] sSrc, byte[] sKey) {
+
+        try {
+            SecretKeySpec skeySpec = new SecretKeySpec(sKey, "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");//"Algorithm/mode/complement mode"
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+            byte[] encrypted = cipher.doFinal(sSrc);
+
+            return encrypted;//BASE64 is used for transcoding, and it can be used to encrypt two times.
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    // decryption
+    public byte[] Decrypt(byte[] sSrc, byte[] sKey) {
+
+        try {
+            SecretKeySpec skeySpec = new SecretKeySpec(sKey, "AES");
+            ;
+            Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+            byte[] dncrypted = cipher.doFinal(sSrc);
+            return dncrypted;
+
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
 
 
 
@@ -523,10 +563,32 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
+
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorWrite(gatt, descriptor, status);
             Log.e("TAG","write"+status);
+
+            SendData(gettoken);
         }
     };
 
+
+    public void SendData(byte[] data) {
+        byte miwen[] = Encrypt(data, key);
+        if (miwen != null) {
+            writeCharacteristic.setValue(miwen);
+            mBluetoothGatt.writeCharacteristic(writeCharacteristic);
+
+            String hexString = bytesToHexString(data);
+
+            handlerMsg("发送数据:"+hexString);
+
+
+        }
+    }
     /**
      * 解析数据
      */
