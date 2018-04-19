@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/start_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:text="开始扫描"/>
+        <Button
+            android:id="@+id/stop_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+        android:text="停止扫描"/>
+        <TextView
+            android:id="@+id/cout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listview"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:listSelector="@null" />
+    <LinearLayout
+        android:id="@+id/control_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+        <Button
+            android:id="@+id/lvl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="电量"/>
+        <Button
+            android:id="@+id/find"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="一键寻牛"/>
+        <Button
+            android:id="@+id/scan_commd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="立即扫描"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/control_layout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+        <Button
+            android:id="@+id/shutdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关机"/>
+        <Button
+            android:id="@+id/starttime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开机"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:text="日志记录"/>
+            <TextView
+                android:id="@+id/log_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#000000"/>
+        </LinearLayout>
+    </ScrollView>
+    </LinearLayout>
+
+</LinearLayout>

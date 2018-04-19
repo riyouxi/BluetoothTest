@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">蓝牙检测工具</string>
+    <string name="help">帮助</string>
+    <string name="string_help_text">当前应用缺少必要的权限，请点击进入设置界面进行权限设置</string>
+    <string name="quit">退出</string>
+    <string name="settings">设置</string>
+</resources>
