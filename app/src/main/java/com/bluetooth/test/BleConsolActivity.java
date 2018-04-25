@@ -206,8 +206,9 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
         mLvL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                byte[] temp = {0x74,0x77,0x01,0x01};
-                handlerMsg(bytesToHexString(temp));
+//                byte[] temp = {0x74,0x77,0x01,0x01};
+                byte[] downLock = {0x02, 0x01, 0x01 , 0x01,token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                handlerMsg(bytesToHexString(downLock));
                 if(mBluetoothGatt==null){
                     Toast.makeText(BleConsolActivity.this,"请重新进行连接!!!",Toast.LENGTH_SHORT).show();
                     return;
@@ -217,9 +218,9 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
                     return;
                 }
 //                byte[] bTemp = hexStringToBytes("74770101");
-
-
-                sendData(" 发送获取电量指令：",temp);
+                handlerMsg("发送获取电量指令：");
+                SendData(downLock);
+//                sendData(" 发送获取电量指令：",temp);
             }
         });
 
@@ -236,7 +237,7 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
                 }
                 byte[] downLock = {0x05, 0x01, 0x06, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, token[0], token[1], token[2], token[3], 0x00, 0x00, 0x00};
 //                byte[] bTemp = hexStringToBytes("72770201");
-                byte[] temp = {0x74,0x77,0x02,0x01};
+                handlerMsg("发送一键寻牛指令:");
                 SendData(downLock);
             }
         });
@@ -409,6 +410,7 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
             mBluetoothGatt.writeCharacteristic(writeCharacteristic);
 
             String hexString = bytesToHexString(miwen);
+            handlerMsg(hexString);
             Log.e("TAG","Encrypt"+hexString);
         }
     }
@@ -454,7 +456,7 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
-            Log.e("TAG", "onCharacteristicRead" + status);
+            Log.e("TAG", "onCharacteristicRead" + characteristic.getUuid());
         }
 
 
@@ -482,8 +484,22 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
                     token[2] = mingwen[5];
                     token[3] = mingwen[6];
                     handlerMsg("收到token:" );
-                } else if (mingwen[0] == 0x05 && mingwen[1] == 0x02) {
-
+                } else if (mingwen[0] == 0x02 && mingwen[1] == 0x02) {
+                    StringBuffer stringBuffer= new StringBuffer();
+                        int v = mingwen[3] & 0xFF;
+                        String hv = Integer.toHexString(v);
+                        if (hv.length() < 2) {
+                            stringBuffer.append(0);
+                        }else{
+                            stringBuffer.append(hv);
+                        }
+                        handlerMsg("获取电量成功:"+stringBuffer.toString());
+                }else if(mingwen[0] == 0x05 && mingwen[1] == 0x02){
+                    if(((int) mingwen[3] & 0xff) == 0x00){
+                            handlerMsg("寻牛成功:");
+                        }else{
+                            handlerMsg("寻牛失败:");
+                        }
                 }
 
             }
@@ -558,6 +574,10 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                   handlerMsg("服务状态：GATT_SUCCESS");
+                List<BluetoothGattService> data =  gatt.getServices();
+                for(BluetoothGattService service: data){
+                    Log.e("uuid",service.getUuid().toString());
+                }
                 BluetoothGattService service = gatt.getService(bltServerUUID);
                 if(service!=null){
                     handlerMsg("设置service uuid :"+bltServerUUID.toString());
@@ -595,7 +615,7 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-            Log.e("TAG","write"+status);
+            Log.e("TAG","write"+characteristic.getUuid());
         }
 
         @Override
@@ -661,9 +681,10 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
             byte[] b2 = {type[1]};
             byte a = ByteBuffer.wrap(b1).order(ByteOrder.BIG_ENDIAN).get();
             byte b = ByteBuffer.wrap(b2).order(ByteOrder.BIG_ENDIAN).get();
-            sb.append(" |牛群识别码:"+byteLittleEndianToInt(type));
-
             Log.e("---------TAG",typeString);
+            sb.append(" |牛群识别码:"+bytesToInt(type));
+
+
             byte[] num = new byte[4];
 
             System.arraycopy(scanData, startPos + 16, num, 0, 4);
@@ -681,26 +702,25 @@ public class BleConsolActivity extends AppCompatActivity implements BluetoothAda
         return null;
     }
 
-    public static int byteLittleEndianToInt(byte[] bytes) {
-        String nubHexStr = "";
-        byte[] temp = new byte[bytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            System.out.println("值：" + bytes[bytes.length - i - 1]);
-            System.out.println("对应的16进制值："+Integer.toHexString(bytes[bytes.length - i - 1]));
-            nubHexStr += Integer.toHexString(bytes[bytes.length - i - 1]);
-        }
-        System.out.println("16进制：" + nubHexStr);
-        return Integer.parseInt(nubHexStr, 16);
+    public  static int bytesToInt(byte[] bytes) {
+        int addr=0;
+        addr = bytes[0] & 0xFF;
+        addr |= ((bytes[1] << 8) & 0xFF00);
+        return addr;
     }
 
+    /**
+     * 以小端模式将byte[]转成int
+     */
     public static int bytesToIntLittle(byte[] src, int offset) {
         int value;
         value = (int) ((src[offset] & 0xFF)
-                | ((src[offset + 1] & 0xFF) << 8)
-                | ((src[offset + 2] & 0xFF) << 16)
-                | ((src[offset + 3] & 0xFF) << 24));
+                | ((src[offset + 1] & 0xFF) << 8));
         return value;
     }
+
+
+
 
 
 
