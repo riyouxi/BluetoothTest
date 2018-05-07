@@ -50,12 +50,18 @@
             android:id="@+id/find"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="一键寻牛"/>
+            android:text="一键寻牛"
+            android:visibility="gone"/>
         <Button
             android:id="@+id/scan_commd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="立即扫描"/>
+            android:text="重置模式"/>
+        <Button
+            android:id="@+id/scan_ring"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="蜂鸣"/>
 
     </LinearLayout>
 
